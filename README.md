@@ -40,3 +40,6 @@ NEXT_PUBLIC_SERVER_URL
 `Nodejs`
 `Expressjs` 
 `TypeScript`
+`Redis`
+`Upstash( for running redis)`
+
