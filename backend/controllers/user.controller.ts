@@ -17,6 +17,7 @@ import express from "express";
 import mongoose from "mongoose";
 import bcryptjs from "bcryptjs";
 import crypto from "crypto";
+import { getUserById } from "../services/user.service";
 // register user
 
 interface IRegistration {
@@ -325,34 +326,36 @@ export const resetPasswordRequest = catchAsyncError(
   }
 );
 
-export const resetPassword = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
-  const { token } = req.params;
-  const { email, password } = req.body;
+export const resetPassword = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { token } = req.params;
+    const { email, password } = req.body;
 
-  const user = await mongoose.model('User').findOne({ 
-    email: email,
-    resetToken: token,
-    expireToken: { $gt: Date.now() }
-  });
+    const user = await mongoose.model("User").findOne({
+      email: email,
+      resetToken: token,
+      expireToken: { $gt: Date.now() },
+    });
 
-  if (!user) {
-    return res.status(400).json({ message: 'Invalid or expired token' });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // Hash the new password
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
+
+    user.password = hashedPassword;
+    user.resetToken = undefined;
+    user.expireToken = undefined;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password successfully reset",
+    });
   }
-
-  // Hash the new password
-  const salt = await bcryptjs.genSalt(10);
-  const hashedPassword = await bcryptjs.hash(password, salt);
-
-  user.password = hashedPassword;
-  user.resetToken = undefined;
-  user.expireToken = undefined;
-  await user.save();
-
-  res.status(200).json({
-    success: true,
-    message: "Password successfully reset",
-  });
-});
+);
 // validate user role
 
 export const validateRoles = (...roles: string[]) => {
@@ -382,12 +385,15 @@ export const updateAccessToken = async (
       refresh_token,
       process.env.REFRESH_TOKEN as string
     ) as JwtPayload;
-
+    // console.log(decoded.id);
+    // console.log(process.env.REFRESH_TOKEN);
     const message = "Couldn't access refresh token";
-    if (!decoded) {
+
+    if (!decoded.id) {
       return next(new ErrorHandler(message, 400));
     }
-    const session = await redis.get(decoded._id as string);
+
+    const session = await redis.get(decoded.id as string);
 
     if (!session) {
       return next(new ErrorHandler(message, 400));
@@ -419,4 +425,18 @@ export const updateAccessToken = async (
   } catch (error: any) {
     return next(new ErrorHandler(error.message, 400));
   }
+
+  // get all data
 };
+
+// get all data
+export const getUserInfo = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?._id;
+      getUserById(userId, res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);

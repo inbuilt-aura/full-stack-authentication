@@ -3,7 +3,6 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-
 const emailRegexPattern: RegExp =
   /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -46,7 +45,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       require: [true, "Please enter your password"],
       minlength: [8, "Password must be min. 8 characters long"],
       select: false,
-       unique: true,
+      unique: true,
     },
     avatar: {
       public_id: String,
@@ -55,7 +54,6 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     role: {
       type: String,
       default: "user",
-
     },
     isVerified: {
       type: Boolean,
@@ -67,7 +65,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
 
 // Hash password before saving
 
-userSchema.pre<IUser>('save', async function (next) {
+userSchema.pre<IUser>("save", async function (next) {
   if (!this.isModified("password")) {
     next();
   }
@@ -76,22 +74,22 @@ userSchema.pre<IUser>('save', async function (next) {
 });
 
 // sign  acces token
-userSchema.methods.SignAccessToken = function(){
+userSchema.methods.SignAccessToken = function () {
   if (!process.env.ACCESS_TOKEN) {
-    throw new Error('ACCESS_TOKEN is not defined in environment variables');
+    throw new Error("ACCESS_TOKEN is not defined in environment variables");
   }
-  return jwt.sign({id:this._id}, process.env.ACCESS_TOKEN, {
-    expiresIn: '5m',
+  return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN, {
+    expiresIn: "5m",
   });
 };
 
 // sign  REFRESH token
-userSchema.methods.SignRefreshToken = function(){
+userSchema.methods.SignRefreshToken = function () {
   if (!process.env.REFRESH_TOKEN) {
-    throw new Error('REFRESH_TOKEN is not defined in environment variables');
+    throw new Error("REFRESH_TOKEN is not defined in environment variables");
   }
-  return jwt.sign({id:this._id}, process.env.REFRESH_TOKEN, {
-    expiresIn: '5d',
+  return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN, {
+    expiresIn: "5d",
   });
 };
 //compare password
@@ -102,5 +100,5 @@ userSchema.methods.comparePassword = async function (
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const userModel : Model<IUser> = mongoose.model("User", userSchema);
+const userModel: Model<IUser> = mongoose.model("User", userSchema);
 export default userModel;

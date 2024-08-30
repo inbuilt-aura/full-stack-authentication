@@ -2,32 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+@media (prefers-color-scheme:dark){
+    :root{
+        --foreground-rgb:255,255,255;
+        --background-start-rgb:0,0,0;
+        --background-end-rgb:0,0,0;
+    }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+/* Chrome,Safari,Edge*/
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button{
+    -webkit-appearance: none;
+    margin:0;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
+/*Firefox*/
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+input[type="number"]{
+    -moz-appearance: textfield;
+}
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-2px);
+    }
+    40% {
+        transform: translateX(2px);
+    }
+    60% {
+        transform: translateX(-2px);
+    } 
+    80% {
+        transform: translateX(2px);
+    }
+    190% {
+        transform: translateX(0);
+    }
+}
+.shake {
+    animation: shake 0.5s ease-in-out;
 }
