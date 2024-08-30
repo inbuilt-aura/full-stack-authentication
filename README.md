@@ -43,3 +43,5 @@ NEXT_PUBLIC_SERVER_URL
 `Redis`
 `Upstash( for running redis)`
 
+## Note:
+In backend,everything is working except reset password token,i am still building it and in frontend if u say i will build profile and attach cloudinary also
